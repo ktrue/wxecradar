@@ -9,7 +9,7 @@ Fortunately, the radar .gif images continue to be published on https://dd.weathe
 **but** sadly, they no longer have the detail overlays of towns, highways, rivers on the new maps. So, the new .gif
 radar images are a bit sparse but do otherwise display the 14-color versions of the original .gif images.  Also, no national composite image is available; the regional images are available.
 
-#Contents:
+## Contents:
 * For standalone or [Saratoga template](https://saratoga-weather.org/wxtemplates/) use:
   *  **_wxecradar-SA.php_**     (the standalone version of the page to run the scripts)
   *  **_wxecradar-inc.php_**    (provides selection capability and \<iframe\> for HAniS display)
@@ -25,20 +25,25 @@ All the files should be in the same directory (normally, the document root of th
 
 **Note:** the wxecradar scripts are included with the Saratoga template Base-Canada distribution and can be maintained by using the [template update tool](https://saratoga-weather.org/wxtemplates/updates.php).
 
-#Installation (for standalone use)
+## Installation (for standalone use)
 
 * Copy the 5 files listed in the standalone section above to a directory on your website.
 * customize the settings in **_wxecradar-SA.php_** to select your default radar site and default language.
 
-#Sample images
-###Standalone script English
+## Sample images
+
+### Standalone script English
+
 ![Standalone - English](./sample-standalone-1.png)
 
-###Standalone script French
+### Standalone script French
+
 ![Standalone - French](./sample-standalone-2.png)
 
-###Template script English
+### Template script English
+
 ![Template - English](./sample-template-1.png)
 
-###Template script French
+### Template script French
+
 ![Template - French](./sample-template-2.png)
