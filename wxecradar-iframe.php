@@ -10,8 +10,9 @@
 # using HAniS JavaScript display animation
 #
 # Version 1.00 - 14-Apr-2021 - initial release
+# Version 1.01 - 19-Apr-2021 - added diagnostic output re curl fetch results
 ############################################################################
-$Version = 'wxecradar-iframe.php V1.00 - 14-Apr-2021';
+$Version = 'wxecradar-iframe.php V1.01 - 19-Apr-2021';
 if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
 //--self downloader --
    $filenameReal = __FILE__;
@@ -208,13 +209,14 @@ function get_image_fnames($radar,$radarLoc,$listFiles) {
 			$tImages[] = $img;
 		}
 	}
-	print "<!-- matches\n".var_export($tImages,true). " -->\n";
+	#print "<!-- matches\n".var_export($tImages,true). " -->\n";
+	print "<!-- found ".count($tImages)." images for radar $radarLoc -->\n";
 	
 	for ($i=1;$i<=$numbImages;$i++) {
 		$keepImages[] = array_pop($tImages); // prune off the last ones in the list
 	}
 		
-	print "<!-- matches\n".var_export($keepImages,true). " -->\n";
+	print "<!-- using these ".count($keepImages)." images for display \n".var_export($keepImages,true). " -->\n";
 
 	
 	$imageNumber = count($keepImages);
@@ -249,6 +251,7 @@ function get_image_fnames($radar,$radarLoc,$listFiles) {
 /* Begin Function get_data */
 function get_data($url)
 {
+	$Debug = "<!-- curl fetching '$url' -->\n";
   $ch = curl_init();
   $timeout = 5;
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);                 // don't verify peer certificate
@@ -260,6 +263,34 @@ function get_data($url)
   curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
   curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
   $data = curl_exec($ch);
+  if(curl_error($ch) <> '') {                                  // IF there is an error
+   $Debug .= "<!-- curl Error: ". curl_error($ch) ." -->\n";        //  display error notice
+  }
+  $cinfo = curl_getinfo($ch);                                  // get info on curl exec.
+
+  $Debug .= "<!-- HTTP stats: " .
+    " RC=".$cinfo['http_code'] .
+    " dest=".$cinfo['primary_ip'] ;
+	if(isset($cinfo['primary_port'])) { 
+	  $Debug .= " port=".$cinfo['primary_port'] ;
+	}
+	if(isset($cinfo['local_ip'])) {
+	  $Debug .= " (from sce=" . $cinfo['local_ip'] . ")";
+	}
+	$Debug .= 
+	"\n      Times:" .
+    " dns=".sprintf("%01.3f",round($cinfo['namelookup_time'],3)).
+    " conn=".sprintf("%01.3f",round($cinfo['connect_time'],3)).
+    " pxfer=".sprintf("%01.3f",round($cinfo['pretransfer_time'],3));
+	if($cinfo['total_time'] - $cinfo['pretransfer_time'] > 0.0000) {
+	  $Debug .=
+	  " get=". sprintf("%01.3f",round($cinfo['total_time'] - $cinfo['pretransfer_time'],3));
+	}
+    $Debug .= " total=".sprintf("%01.3f",round($cinfo['total_time'],3)) .
+    " secs -->\n";
+	
+  echo $Debug;	
+	
   curl_close($ch);
   return $data;
 }
