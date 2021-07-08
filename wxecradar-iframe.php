@@ -11,8 +11,9 @@
 #
 # Version 1.00 - 14-Apr-2021 - initial release
 # Version 1.01 - 19-Apr-2021 - added diagnostic output re curl fetch results
+# Version 1.02 - 08-Jul-2021 - added overlays in ./radar/ (thanks to M. Romer)
 ############################################################################
-$Version = 'wxecradar-iframe.php V1.01 - 19-Apr-2021';
+$Version = 'wxecradar-iframe.php V1.02 - 08-Jul-2021';
 if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
 //--self downloader --
    $filenameReal = __FILE__;
@@ -119,6 +120,10 @@ if (isset ($Lang) and $Lang == 'fr') {
 speed_labels = Plus lent, Plus vite \n\
 step_labels = Image pr&#233;c&#233;dente,Prochaine image \n\
 ';
+  $labelsOverlay = 'overlay_labels = Villes/on, Villes additionnelles, Routes/on, Num&eacute;ros de route, Rivi&egrave;res, Cercles de Radar \n\
+';
+  $labelsComposite = 'overlay_labels = Villes/on \n\
+';
 } else {
   $Lang = 'en';
   $ECNAME = "Environment Canada";
@@ -128,6 +133,10 @@ step_labels = Image pr&#233;c&#233;dente,Prochaine image \n\
 	$labelsLang = 'startstop_labels = Run, Stop \n\
 speed_labels = Slower, Faster \n\
 step_labels = &lt;, &gt; \n\
+';
+  $labelsOverlay = 'overlay_labels = Cities/on, More Cities, Roads/on, Road Numbers, Rivers, Radar Circles \n\
+';
+  $labelsComposite = 'overlay_labels = Cities/on \n\
 ';
 }
 
@@ -147,7 +156,8 @@ enable_smoothing = <?php echo ($smoothingOn?'t':'f')?> \n\
 overlay_labels_style=font-family:arial;font-size:12px;color:<?php echo $btnColor?>;background-color:<?php echo $bgndColor?>; \n\
 background_static = y \n\
 buttons_style = flex:auto;margin:2px;background-color:<?php echo $btnColor?>;border-radius:7px;color:<?php echo $btnTextColor?>; \n\
-bottom_controls = toggle \n\
+<?php echo gen_overlay($radarLoc,$radar,', ',$labelsOverlay,$labelsComposite); ?>
+bottom_controls = toggle, overlay \n\
 toggle_colors = <?php echo $btnColor?>, red, orange \n\
 bottom_controls_tooltip = Toggle frames on/off \n\
 bottom_controls_style = background-color:<?php echo $bgndColor?>;' ,
@@ -176,6 +186,24 @@ function get_file_names($radarLoc,$overlay,$separator){
 
 }
 /* end get_file_names */
+
+function gen_overlay($radarLoc,$radar,$sep,$labelsOverlay,$labelsComposite) {
+	$composite = array('NAT','ERN','ATL','ONT','PNR','PYR','QUE');
+	$r = $radarLoc;
+	if(in_array($radarLoc,$composite)) {
+	$out = 'overlay_base = ./radar/ \n\
+'.$labelsComposite.' \n\
+overlay_filenames = '.$r.'_composite.gif \n\
+';
+	} else {
+	
+	$out = 'overlay_base = ./radar/ \n\
+'.$labelsOverlay.' \n\
+overlay_filenames = '.$r.'_towns.gif, '.$r.'_addtowns.gif, '.$r.'_roads.gif, '.$r.'_labs.gif, '.$r.'_rivers.gif, radar_circle.gif \n\
+';
+	}
+	return($out);
+}
 // ------------------------------------------------------------------
 function get_image_fnames($radar,$radarLoc,$listFiles) {
 
