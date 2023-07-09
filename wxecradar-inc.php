@@ -6,8 +6,9 @@
 # Many thanks to Jerry for allowing the kind use of his code!
 #
 # Version 1.00 - 14-Apr-2021 - initial release
+# Version 1.01 - 01-Nov-2022 - update default to CASKR from WKR
 ############################################################################
-$Version = 'wxecradar-inc.php V1.00 - 14-Apr-2021';
+$Version = 'wxecradar-inc.php V1.01 - 01-Nov-2022';
 if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
 //--self downloader --
    $filenameReal = __FILE__;
@@ -30,7 +31,7 @@ if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
     // you DON'T need to customize these.. change wxecradar.php instead -- this is for testing
 		echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/javascript"></script>';
 		$radar = 'RAIN'; // Default radar type
-		$radarLoc = 'WKR'; // IMPORTAMT!!! Default radar location is set here
+		$radarLoc = 'CASKR'; // IMPORTAMT!!! Default radar location is set here
 		$imageWidth = 600; // Width of radar images
 		$iframeWidth = 617; // Default IFrame Width -- adjust as needed
 		$iframeHeight = 600; // Default IFrame Height -- adjust as needed

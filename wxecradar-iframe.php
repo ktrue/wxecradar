@@ -12,8 +12,9 @@
 # Version 1.00 - 14-Apr-2021 - initial release
 # Version 1.01 - 19-Apr-2021 - added diagnostic output re curl fetch results
 # Version 1.02 - 08-Jul-2021 - added overlays in ./radar/ (thanks to M. Romer)
+# Version 1.03 - 02-Nov-2022 - added NATIONAL map (thanks to M. Romer)
 ############################################################################
-$Version = 'wxecradar-iframe.php V1.02 - 08-Jul-2021';
+$Version = 'wxecradar-iframe.php V1.03 - 02-Nov-2022';
 if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
 //--self downloader --
    $filenameReal = __FILE__;
@@ -45,7 +46,7 @@ print "\n<!-- $Version -->\n";
 if (!isset($radar)) { // To test load some defaults if not called by 'wxecradar-inc.php'
   // you DON'T need to customize these.. change wxecradar.php instead.
 	$radar = 'RAIN'; // Default radar type is set here
-	$radarLoc = 'WKR'; // IMPORTAMT!!! Default radar location is set here
+	$radarLoc = 'CASKR'; // IMPORTAMT!!! Default radar location is set here
 	$imageWidth = 600; // Width of radar images
 	$iframeWidth = 617; // Default IFrame Width -- adjust as needed
 	$iframeHeight = 620; // Default IFrame Height -- adjust as needed
@@ -96,7 +97,16 @@ if (!isset($radar)) { // To test load some defaults if not called by 'wxecradar-
     $smoothingOn = $_GET['smoothingOn'];
   }
 $radInfo = array();
-$errorMessage = get_image_fnames($radar,$radarLoc,$listFiles=false);
+
+$GifLoc = 'PRECIPET';
+if (substr($radarLoc, 0, 3) === 'CAS') { // Determine if site is CAS** or old one, use CAPPI for CAS** and PRECIPET for old ones
+  $GifLoc = 'CAPPI'; // Comment out to disable CAPPI data
+}
+if (substr($radarLoc, 0, 3) === 'NAT') { // Determine if site is National, use CAPPI only for this option
+  $GifLoc = 'CAPPI'; // Comment out to disable CAPPI data
+}
+
+$errorMessage = get_image_fnames($radar,$radarLoc,$listFiles=false,$GifLoc);
 if ($errorMessage=='Radar Images Currently Unavailable!') {
   echo '<b>No Radar Images Are Currently Available From Here!</b></div>';
   exit;
@@ -144,7 +154,7 @@ step_labels = &lt;, &gt; \n\
 
   <body style="width:<?php echo $imageWidth?>px" onload="HAniS.setup(
 'filenames = <?php get_file_names($radarLoc,$radar,', ')?> \n\
-image_base = https://dd.weather.gc.ca/radar/PRECIPET/GIF/<?php echo $radarLoc; ?>/ \n\
+image_base = https://dd.weather.gc.ca/radar/<?php echo $GifLoc; ?>/GIF/<?php echo $radarLoc; ?>/ \n\
 controls = startstop, speed, step \n\
 <?php echo $labelsLang; ?>
 controls_style = display:flex;flex-flow:row;background-color:<?php echo $bgndColor?>; \n\
@@ -188,7 +198,7 @@ function get_file_names($radarLoc,$overlay,$separator){
 /* end get_file_names */
 
 function gen_overlay($radarLoc,$radar,$sep,$labelsOverlay,$labelsComposite) {
-	$composite = array('NAT','ERN','ATL','ONT','PNR','PYR','QUE');
+	$composite = array('NATIONAL','ERN','ATL','ONT','PNR','PYR','QUE');
 	$r = $radarLoc;
 	if(in_array($radarLoc,$composite)) {
 	$out = 'overlay_base = ./radar/ \n\
@@ -205,11 +215,11 @@ overlay_filenames = '.$r.'_towns.gif, '.$r.'_addtowns.gif, '.$r.'_roads.gif, '.$
 	return($out);
 }
 // ------------------------------------------------------------------
-function get_image_fnames($radar,$radarLoc,$listFiles) {
+function get_image_fnames($radar,$radarLoc,$listFiles,$GifLoc) {
 
-	global $numbImages,$goodImages;
+	global $numbImages,$goodImages,$GifLoc;
 	$matches = array();
-	$theData = get_data('https://dd.weather.gc.ca/radar/PRECIPET/GIF/'.$radarLoc.'/');
+	$theData = get_data('https://dd.weather.gc.ca/radar/'.$GifLoc.'/GIF/'.$radarLoc.'/');
 /*
 <img src="/icons/image2.gif" alt="[IMG]"> <a href="202104101920_WKR_COMP_PRECIPET_SNOW_A11Y.gif">202104101920_WKR_COMP_PRECIPET_SNOW_A11Y.gif</a> 2021-04-10 19:28   23K  
 <img src="/icons/image2.gif" alt="[IMG]"> <a href="202104101930_WKR_COMP_PRECIPET_RAIN.gif">202104101930_WKR_COMP_PRECIPET_RAIN.gif</a>      2021-04-10 19:38   21K  
@@ -237,10 +247,25 @@ function get_image_fnames($radar,$radarLoc,$listFiles) {
 			$tImages[] = $img;
 		}
 	}
+
+  if (count($tImages)<1) {// Revert back to default because no images were found, likely radar is offline
+    if ($GifLoc === 'CAPPI') { 
+        $GifLoc = 'PRECIPET'; 
+    }
+    $theData = get_data('https://dd.weather.gc.ca/radar/'.$GifLoc.'/GIF/'.$radarLoc.'/');
+    print "<!-- theData returns ".strlen($theData). " bytes -->\n";	
+    preg_match_all('!<a href="(.*\.gif)"!Usi', $theData, $matches);
+    foreach ($matches[1] as $i => $img) {
+      if(strpos($img,$radar) !== false
+         and strpos($img,'A11Y') == false) { // keep the ones we want
+        $tImages[] = $img;
+      }
+    }
+  }
+
 	#print "<!-- matches\n".var_export($tImages,true). " -->\n";
 	print "<!-- found ".count($tImages)." images for radar $radarLoc -->\n";
-	
-	for ($i=1;$i<=$numbImages;$i++) {
+  for ($i=1;$i<=$numbImages;$i++) {
 		$keepImages[] = array_pop($tImages); // prune off the last ones in the list
 	}
 		
@@ -267,7 +292,7 @@ function get_image_fnames($radar,$radarLoc,$listFiles) {
     $imageFile = array_reverse($keepImages);
 			
 	  for ($i=0; $i<$numbImages; $i++) {
-		  $image = 'https://dd.weather.gc.ca/radar/PRECIPET/GIF/'.$radarLoc.'/'.$imageFile[$i];
+		  $image = 'https://dd.weather.gc.ca/radar/'.$GifLoc.'/GIF/'.$radarLoc.'/'.$imageFile[$i];
 		  echo $image;
 		  echo '& ';
 		  $radInfo[$i] = $imageFile[$i];

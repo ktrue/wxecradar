@@ -33,6 +33,7 @@
 # Many thanks to Jerry for allowing the kind use of his code!
 #
 # Version 1.00 - 14-Apr-2021 - initial release
+# Version 1.01 - 01-Nov-2022 - update default to CASKR from WKR
 ############################################################################
 $viewSource = false;
 if (isset($_REQUEST['sce']) && strtolower($_REQUEST['sce']) == 'view' ) {
@@ -60,7 +61,7 @@ $showGizmo = true; // Set to false to exclude the gizmo
 include("top.php");
 ############################################################################
 /************************* Settings *****************************/
-$radarLoc = 'WKR'; // IMPORTANT!!! Default radar location is set here
+$radarLoc = 'CASKR'; // IMPORTANT!!! Default radar location is set here
 $defaultLang = 'en';  // set to 'fr' for french default language
 //                    // set to 'en' for english default language
 $imageWidth = 600; // Width of radar images
