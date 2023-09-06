@@ -8,6 +8,7 @@
 # Version 1.02 - 01-Nov-2022 - updates for pacific sites
 # Version 1.03 - 02-Nov-2022 - added NATIONAL map (thanks M. Romer)
 # Version 1.04 - 13-Feb-2023 - added CASMA overlay maps (thanks M. Romer)
+# Version 1.05 - 06-Sep-2023 - added CASHP snd CASSN overlays (thanks M. Romer)
 #
 ####################################################################################
 #
@@ -26,8 +27,7 @@ $StateList = array (
 		'CASAG' => 'Aldergrove (near Vancouver)',        # was WUJ V1.02
 		'CASPG' => 'Prince George',                      # was XPG V1.02
 		'CASSS' => 'Silver Star Mountain (near Vernon)', # was XSS V1.02
-		'XSI' => 'Victoria',                             # will be Halfmoon Peak, BC (Vancouver Island replacement site) (CASHP)
-#		'CASHP' => 'Halfmoon Peak',
+		'CASHP' => 'Halfmoon Peak',      # was XSI V1.05 (Victoria) CASHP is new site for Victoria
 	),
 	'Prairies' => array(
 		'PNR' => 'Prairies Region',
@@ -51,7 +51,7 @@ $StateList = array (
 		'CASKR' => 'King City (near Toronto)',         # was WKR V1.01
 		'CASMR' => 'Montreal River (near Sault Ste Marie)',
 		'CASRF' => 'Smooth Rock Falls (near Timmins)',
-		'CASSN' => 'Superior West (near Thunder Bay)', # was XNI V1.01
+		'CASSN' => 'Shuniah (near Thunder Bay)',       # was XNI V1.01
 	),
 	'Qu&eacute;bec' => array(
 		'QUE' => 'Qu&eacute;bec Region',
